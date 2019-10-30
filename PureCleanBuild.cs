@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -42,6 +43,10 @@ namespace PureCleanBuild
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
         /// <param name="commandService">Command service to add command to, not null.</param>
+        /// 
+
+        private int FoldersRemoved =  0;
+
         private PureCleanBuild(AsyncPackage package, OleMenuCommandService commandService)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
@@ -101,10 +106,8 @@ namespace PureCleanBuild
 
                 IVsSolution solution = (IVsSolution)Package.GetGlobalService(typeof(IVsSolution));
                 IVsOutputWindow outWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
-
-                Guid buildPaneGuid = VSConstants.OutputWindowPaneGuid.BuildOutputPane_guid; // P.S. There's also the GUID_OutWindowDebugPane available.
+                Guid buildPaneGuid = VSConstants.OutputWindowPaneGuid.BuildOutputPane_guid;
                 IVsOutputWindowPane buildPane;
-                int foldersRemoved = 0;
                 int projectsCleaned = 0;
                 outWindow.GetPane(ref buildPaneGuid, out buildPane);
 
@@ -113,44 +116,50 @@ namespace PureCleanBuild
 
                 foreach (Project project in GetProjects(solution))
                 {
-
                     if (!string.IsNullOrEmpty(project.FileName))
                     {
                         projectsCleaned++;
                         var path = project.Properties.Item("FullPath").Value.ToString();
-                        var bin = Path.Combine(path, "bin");
-                        var obj = Path.Combine(path, "obj");
+                        var paths = new List<string>
+                        { 
+                            Path.Combine(path, "bin"),
+                            Path.Combine(path, "obj")
+                        };
                         try
                         {
-                            if (Directory.Exists(bin))
+                            paths.ForEach(x =>
                             {
-                                Directory.Delete(bin, true);
-                                buildPane.OutputString($"Removing {bin}\n");
-                                foldersRemoved++;
-                            }
-                            if (Directory.Exists(obj))
-                            {
-                                Directory.Delete(Path.Combine(path, "obj"), true);
-                                buildPane.OutputString($"Removing {obj}\n");
-                                foldersRemoved++;
-                            }
+                                package.JoinableTaskFactory.Run(async () =>
+                                {
+                                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                                    if (Directory.Exists(x))
+                                    {
+                                        Directory.Delete(x, true);
+                                        buildPane.OutputString($"Removing {x}\n");
+                                        if (!Directory.Exists(x))
+                                        {
+                                            buildPane.OutputString($"Removed {x}\n");
+                                            FoldersRemoved++;
+                                        }
+                                    }
+                                    await Task.FromResult(true);
+                                });
+                            });
                         }
-                        catch (UnauthorizedAccessException ex)
+                        catch (UnauthorizedAccessException)
                         {
                             MessageBox.Show("Your current user does not have permissions to delete the bin/obj folders try restarting Visual Studio as administrator.");
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             MessageBox.Show("Something has gone wrong, please try again.");
                         }
                     }
                 }
-                buildPane.OutputString($"Nuke Completed, deleted {foldersRemoved} folders from {projectsCleaned} projects. \n");
+                buildPane.OutputString($"Nuke Completed, deleted {FoldersRemoved} folders from {projectsCleaned} projects. \n");
             });
         }
-        // get current solution
-
-
+        
         public static IEnumerable<Project> GetProjects(IVsSolution solution)
         {
             foreach (IVsHierarchy hier in GetProjectsInSolution(solution))
@@ -186,14 +195,14 @@ namespace PureCleanBuild
             }
         }
 
-        public static EnvDTE.Project GetDTEProject(IVsHierarchy hierarchy)
+        public static Project GetDTEProject(IVsHierarchy hierarchy)
         {
             if (hierarchy == null)
                 throw new ArgumentNullException("hierarchy");
 
             object obj;
             hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ExtObject, out obj);
-            return obj as EnvDTE.Project;
+            return obj as Project;
         }
     }
 }
