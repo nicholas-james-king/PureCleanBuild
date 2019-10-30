@@ -103,12 +103,12 @@ namespace PureCleanBuild
             package.JoinableTaskFactory.Run( async () => 
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
                 IVsSolution solution = (IVsSolution)Package.GetGlobalService(typeof(IVsSolution));
                 IVsOutputWindow outWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
                 Guid buildPaneGuid = VSConstants.OutputWindowPaneGuid.BuildOutputPane_guid;
                 IVsOutputWindowPane buildPane;
                 int projectsCleaned = 0;
+                FoldersRemoved = 0;
                 outWindow.GetPane(ref buildPaneGuid, out buildPane);
 
                 buildPane.Activate(); // Brings this pane into view
