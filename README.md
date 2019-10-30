@@ -1,5 +1,5 @@
 # PureCleanBuild
-VS extention that Deletes the bin/obj folder for each project in the solution.
+VS extention that deletes the bin/obj folder for each project in the solution.
 
 ## Install
 
