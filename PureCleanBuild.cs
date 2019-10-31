@@ -46,6 +46,7 @@ namespace PureCleanBuild
         /// 
 
         private int FoldersRemoved =  0;
+        private int FilesDeleted = 0;
 
         private PureCleanBuild(AsyncPackage package, OleMenuCommandService commandService)
         {
@@ -109,6 +110,7 @@ namespace PureCleanBuild
                 IVsOutputWindowPane buildPane;
                 int projectsCleaned = 0;
                 FoldersRemoved = 0;
+                FilesDeleted = 0;
                 outWindow.GetPane(ref buildPaneGuid, out buildPane);
 
                 buildPane.Activate(); // Brings this pane into view
@@ -132,9 +134,23 @@ namespace PureCleanBuild
                                 package.JoinableTaskFactory.Run(async () =>
                                 {
                                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                                    if (Directory.Exists(x))
+                                    while (Directory.Exists(x))
                                     {
-                                        Directory.Delete(x, true);
+                                        DirectoryInfo di = new DirectoryInfo(x);
+
+                                        foreach (FileInfo file in di.GetFiles())
+                                        {
+                                            buildPane.OutputString($"Removing file {file.FullName}\n");
+                                            file.Delete();
+                                            FilesDeleted++;
+                                            buildPane.OutputString($"Removed file {file.FullName}\n");
+                                        }
+                                        foreach (DirectoryInfo dir in di.GetDirectories())
+                                        {
+                                            dir.Delete(true);
+                                        }
+
+                                        Directory.Delete(x);
                                         buildPane.OutputString($"Removing {x}\n");
                                         if (!Directory.Exists(x))
                                         {
@@ -148,7 +164,7 @@ namespace PureCleanBuild
                         }
                         catch (UnauthorizedAccessException)
                         {
-                            MessageBox.Show("Your current user does not have permissions to delete the bin/obj folders try restarting Visual Studio as administrator.");
+                            MessageBox.Show("Your current user does not have permissions to delete the bin/obj folders try restarting Visual Studio as administrator.", "Something has gone wrong :(");
                         }
                         catch (Exception)
                         {
@@ -156,7 +172,7 @@ namespace PureCleanBuild
                         }
                     }
                 }
-                buildPane.OutputString($"Nuke Completed, deleted {FoldersRemoved} folders from {projectsCleaned} projects. \n");
+                buildPane.OutputString($"Nuke Completed, deleted {FilesDeleted} files, from {FoldersRemoved} folders inside of {projectsCleaned} projects. \n");
             });
         }
         
