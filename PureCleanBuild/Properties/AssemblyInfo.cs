@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("PureCleanBuild")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Fully deletes the /bin and /obj folders to ensure no remaining DLLs become utilised in a build unintentionally.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PureCleanBuild")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyCopyright("Nicholas King, Alexander Butler")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -29,5 +29,7 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.5.0.0")]
+[assembly: AssemblyFileVersion("1.5.0.0")]
+[assembly: Guid("6022E3B2-E8D4-46B4-8D15-4CA3E2F473FA")]
+

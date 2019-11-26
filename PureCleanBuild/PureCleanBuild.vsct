@@ -37,7 +37,7 @@
          must be a menu. -->
     <Groups>
       <Group guid="guidPureCleanBuildPackageCmdSet" id="MyMenuGroup" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_BUILD"/>
       </Group>
     </Groups>
 
@@ -55,6 +55,7 @@
       <Button guid="guidPureCleanBuildPackageCmdSet" id="PureCleanBuildId" priority="0x0100" type="Button">
         <Parent guid="guidPureCleanBuildPackageCmdSet" id="MyMenuGroup" />
         <Icon guid="cleanBuild" id="cleanBuild1" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
           <ButtonText>Nuke Build</ButtonText>
         </Strings>
@@ -68,32 +69,32 @@
             bitmap strip containing the bitmaps and then there are the numeric ids of the elements used
             inside a button definition. An important aspect of this declaration is that the element id
             must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
-        <Bitmap guid="cleanBuild" href="Resources\cleanBuild.bmp" usedList="cleanBuild1"/>
-        <Bitmap guid="guidImages" href="Resources\PureCleanBuild.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>
+      <Bitmap guid="cleanBuild" href="Resources\cleanBuild.png" usedList="cleanBuild1"/>
     </Bitmaps>
   </Commands>
 
+  <KeyBindings>
+    <KeyBinding guid="guidPureCleanBuildPackageCmdSet" id="PureCleanBuildId" editor="guidVSStd97" key1="N" mod1="Alt" />
+  </KeyBindings>
+
+  <VisibilityConstraints>
+    <VisibilityItem guid="guidPureCleanBuildPackageCmdSet" id="PureCleanBuildId"  context="guidUIContext"/>
+  </VisibilityConstraints>
+
   <Symbols>
     <!-- This is the package guid. -->
-    <GuidSymbol name="guidPureCleanBuildPackage" value="{74efbe47-0dda-428e-92a1-4fcd5b2bf4e8}" />
+    <GuidSymbol name="guidPureCleanBuildPackage" value="{a444cef9-42ff-4db4-a021-61029ca3adf2}" />
+    <!-- This UI context guid -->
+    <GuidSymbol name="guidUIContext" value="{5f8201b3-8963-49f1-94d4-cfd11266768d}" />
 
     <!-- This is the guid used to group the menu commands together -->
-    <GuidSymbol name="guidPureCleanBuildPackageCmdSet" value="{ee7f2b7d-5dfd-4527-b998-e66e95a5da07}">
+    <GuidSymbol name="guidPureCleanBuildPackageCmdSet" value="{b24c565c-4581-4b74-8b45-7d8ff8ef285b}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="PureCleanBuildId" value="0x0100" />
     </GuidSymbol>
 
-    <GuidSymbol name="cleanBuild" value="{6216D54D-560F-4737-89D5-9E3364710F33}">
+    <GuidSymbol name="cleanBuild" value="{bc6b7f86-7068-4c95-a102-7805d4216c7f}">
       <IDSymbol name="cleanBuild1" value="1" />
-    </GuidSymbol>
-    
-    <GuidSymbol name="guidImages" value="{b6b36294-d557-450f-8635-3fa0b3872742}" >
-      <IDSymbol name="bmpPic1" value="1" />
-      <IDSymbol name="bmpPic2" value="2" />
-      <IDSymbol name="bmpPicSearch" value="3" />
-      <IDSymbol name="bmpPicX" value="4" />
-      <IDSymbol name="bmpPicArrows" value="5" />
-      <IDSymbol name="bmpPicStrikethrough" value="6" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>
